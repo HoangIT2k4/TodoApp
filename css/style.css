@@ -31,6 +31,14 @@ body { font-family: Arial, sans-serif; padding: 20px; }
                 cursor: pointer;
                 border-radius: 3px;
             }
+            .btn-update {
+                background-color: #442cff;
+                color: white;
+                border: none;
+                padding: 5px 10px;
+                cursor: pointer;
+                border-radius: 3px;
+            }
 
             .btn-delete:hover { background-color: #cc0000; }
 
