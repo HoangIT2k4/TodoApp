@@ -2,56 +2,60 @@ function checktest() {
     var text1 = document.getElementById("textIP");
     var text2 = text1.value;
 
+    const inputElement = document.getElementById('textIP');
+    inputElement.addEventListener('input', function() {
+        this.value = this.value.replace(/<[^>]*>/g, '');
+    });
+
     if (text2.trim() === "") {
         alert("Vui lòng nhập công việc");
+       
+        return;
+    }
+
+    let text3 = text1.value.trim().split(/\s+/);
+    if(text3.length > 5){
+        alert("Vui lòng không nhập quá dài");
         return;
     }
     saveToStorage(text2)
-    loaddata();
+    renderTask(text2,false);
     text1.value = "";
 }
 
 function renderTask(text , check) {
-    if(check){
-        var container = document.getElementById("GetText");
+    var container = document.getElementById("GetText");
         var taskItem = document.createElement("div");
         taskItem.className = "todo-item";
         taskItem.innerHTML = `
-            <span class="task-text strikethrough">${text}</span>
+            <span class="task-text ${(check) ? "strikethrough" : ""}">${text}</span>
             <div>
-                <input type="checkbox" class="task-checkbox" checked>
-                <label class="test123 strikethrough">Hoàn Thành</label>
+                <input type="checkbox" class="task-checkbox" ${(check) ? "checked" : ""}>
+                <label class="test123  ${(check) ? "strikethrough" : ""}">Hoàn Thành</label>
             </div>
             <button class="btn-delete" onclick="deleteTask(this, '${text}')">Xóa</button>
             <button class="btn-update" onclick="updateTask(this, '${text}')">Sửa</button>
         `;
         container.appendChild(taskItem);
-    }
-    else{
-        var container = document.getElementById("GetText");
-        var taskItem = document.createElement("div");
-        taskItem.className = "todo-item";
-        taskItem.innerHTML = `
-            <span class="task-text">${text}</span>
-            <div>
-                <input type="checkbox" class="task-checkbox">
-                <label class="test123">Hoàn Thành</label>
-            </div>
-            <button class="btn-delete" onclick="deleteTask(this, '${text}')">Xóa</button>
-            <button class="btn-update" onclick="updateTask(this, '${text}')">Sửa</button>
-        `;
-        container.appendChild(taskItem);
-    }
 }
 
 function deleteTask(button , textToDelete) {
-    button.parentElement.remove();
+    var taskItem = button.closest('.todo-item');
+    var container = document.getElementById("GetText");
+    var children = Array.from(container.children);
+    var index = children.indexOf(taskItem);
     let list = JSON.parse(localStorage.getItem('TodoApp')) || [];
-    list = list.filter(item => item !== textToDelete);
-    localStorage.setItem('TodoApp', JSON.stringify(list));
     let listcheck = JSON.parse(localStorage.getItem('TodoAppcheck')) || [];
-    listcheck = listcheck.filter(item => item !== textToDelete);
+    if (index !== -1) {
+        list.splice(index, 1);
+        listcheck.splice(index, 1);
+        //list[index] = list.filter(item => item !== textToDelete);
+        //listcheck[index] = listcheck.filter(item => item !== textToDelete);
+    }
+    button.parentElement.remove();
+    localStorage.setItem('TodoApp', JSON.stringify(list));
     localStorage.setItem('TodoAppcheck', JSON.stringify(listcheck));
+    loaddata();
 }
 function updateTask(button, textToUpdate) {
     
@@ -79,7 +83,7 @@ function saveToStorage(text) {
     list.push(text);
     localStorage.setItem('TodoApp', JSON.stringify(list));
     let listcheck = JSON.parse(localStorage.getItem('TodoAppcheck')) || [];
-    listcheck = false;
+    listcheck.push(false);
     localStorage.setItem('TodoAppcheck', JSON.stringify(listcheck));
 }
 
@@ -92,6 +96,10 @@ function loaddata(){
             a = datacheck[i];
             renderTask(data[i] , a);
         };
+    const inputElement = document.getElementById('textIP');
+    inputElement.addEventListener('input', function() {
+        this.value = this.value.replace(/<[^>]*>/g, '');
+    });
 }
 function datachecked(){
     var container = document.getElementById("GetText");
@@ -111,7 +119,9 @@ function datasave(){
     let data = JSON.parse(localStorage.getItem('TodoApp')) || [];
     let datacheck = JSON.parse(localStorage.getItem('TodoAppcheck')) || [];
         for(let i = 0 ; i< data.length; i++) {
-            if(datacheck[i] === false){
+            if(datacheck[i]){
+            }
+            else{
                 a = datacheck[i];
                 renderTask(data[i] , a);
             }
